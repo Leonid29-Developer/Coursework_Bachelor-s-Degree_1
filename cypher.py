@@ -1,3 +1,4 @@
+import os
 import string
 
 # Создание массива символов в заданном порядке
@@ -78,43 +79,66 @@ def decrypt(text, sid=70220069):
     return ''.join(decrypted)
 
 
+def process_files():
+    """Обрабатывает файлы encrypt.txt и decrypt.txt
+    записывает результаты в файлы encrypt_result.txt и decrypt_result.txt"""
+
+    # Обработка файла для шифрования
+    if os.path.exists("Data/encrypt.txt"):
+
+        index = 0
+        with open("Data/encrypt.txt", "r", encoding="utf-8") as f:
+            with open("Data/encrypt_result.txt", "w",
+                      encoding="utf-8") as f_result:
+                for line in f:
+
+                    index += 1
+                    text_result = (f"Тестовый кейс зашифровки - {index}:\n" +
+                                   f"ID студента: 70220069\n" +
+                                   f"Исходный текст: {line.rstrip('\n')}\n" +
+                                   f"Зашифрованный текст: {encrypt(line).rstrip('\n')}\n")
+
+                    if index > 1:
+                        f_result.write("\n" + text_result)
+                    else:
+                        f_result.write(text_result)
+
+                    # Дублирование содержимого файла с результатом в консоль.
+                    print(text_result)
+    else:
+        print("<<<Файл encrypt.txt не найден>>>")
+
+    # Обработка файла для дешифрования
+    if os.path.exists("Data/decrypt.txt"):
+
+        index = 0
+        with open("Data/decrypt.txt", "r", encoding="utf-8") as f:
+            with open("Data/decrypt_result.txt", "w",
+                      encoding="utf-8") as f_result:
+                for line in f:
+
+                    index += 1
+                    text_result = (f"Тестовый кейс дешифрования - {index}:\n" +
+                                   f"ID студента: 70220069\n" +
+                                   f"Исходный текст: {line.rstrip('\n')}\n" +
+                                   f"Расшифрованный текст: {decrypt(line).rstrip('\n')}\n")
+
+                    if index > 1:
+                        f_result.write("\n" + text_result)
+                    else:
+                        f_result.write(text_result)
+
+                    # Дублирование содержимого файла с результатом в консоль.
+                    print(text_result)
+    else:
+        print("<<<Файл decrypt.txt не найден>>>")
+
+
 if __name__ == "__main__":
-    print("=" * 40 + "\nТЕСТИРОВАНИЕ МОДУЛЯ ШИФРОВАНИЯ ЦЕЗАРЯ\n" + "=" * 40)
-
-    # Тестовый кейс зашифровки - 1
-    text = "Квартира78"
-    print(f"Тестовый кейс зашифровки - 1:\n" +
-          f"Исходное: {text}\n" +
-          f"Зашифровано: {encrypt(text)}\n")
-
-    # Тестовый кейс зашифровки - 2
-    text = "Кофе)йнОе@утро"
-    print(f"Тестовый кейс зашифровки - 2:\n" +
-          f"Исходное: {text}\n" +
-          f"Зашифровано: {encrypt(text)}\n")
-
-    # Тестовый кейс зашифровки - 3
-    text = "loGin2*24"
-    print(f"Тестовый кейс зашифровки - 3:\n" +
-          f"Исходное: {text}\n" +
-          f"Зашифровано: {encrypt(text)}\n")
-
-    # Тестовый кейс дешифрования - 1
-    text = "ъТпЭж67бв"  # уЛиЦа 045
-    print(f"Тестовый кейс дешифрования - 1:\n" +
-          f"Исходное: {text}\n" +
-          f"Расшифровано: {decrypt(text)}\n")
-
-    # Тестовый кейс дешифрования - 2
-    text = "*тлЩх#чжКхшщГ6/O7tl:"  # #леТоVраДость (H0me)
-    print(f"Тестовый кейс дешифрования - 2:\n" +
-          f"Исходное: {text}\n" +
-          f"Расшифровано: {decrypt(text)}\n")
-
-    # Тестовый кейс дешифрования - 3
-    text = "WhZz$vYk>ёNё"  # PaSsWoRd-9G9
-    print(f"Тестовый кейс дешифрования - 3:\n" +
-          f"Исходное: {text}\n" +
-          f"Расшифровано: {decrypt(text)}\n")
-
-    print("=" * 40 + "\nВсе тесты завершены\n" + "=" * 40)
+    print(
+        f"{"=" * 60}\nЗапуск модуля напрямую. Обработка файлов encrypt.txt и" +
+        f" decrypt.txt\n{"=" * 60}")
+    process_files()
+    print(
+        f"{"=" * 60}\nОбработка завершена. Результаты записаны в encrypt_result.txt" +
+        f" и decrypt_result.txt\n{"=" * 60}")

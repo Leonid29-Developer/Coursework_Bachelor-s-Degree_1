@@ -1,7 +1,6 @@
 import tkinter as tk
-from dbm import error
-from os import remove
-from tkinter import filedialog, messagebox as msgbox, scrolledtext as stext
+from tkinter import (filedialog, messagebox as msgbox,
+                     scrolledtext as scroll_text)
 
 
 class EncryptionWindow:
@@ -31,12 +30,12 @@ class EncryptionWindow:
                 self.Data = content
 
                 if content.count('\n') + 1 > self.length:
-                    self.content_set(
+                    EncryptionWindow.content_set(
                             self.textbox_content_scroll,
                             self.textbox_content,
                             content)
                 else:
-                    self.content_set(
+                    EncryptionWindow.content_set(
                             self.textbox_content_scroll,
                             self.textbox_content,
                             content)
@@ -47,7 +46,8 @@ class EncryptionWindow:
                 self.label_error.config(
                         text = f"   Ошибка: Не удалось открыть файл")
 
-    def content_set (self, textbox_on, textbox_off, content):
+    @staticmethod
+    def content_set (textbox_on, textbox_off, content):
         textbox_on.config(state = "normal")
         textbox_on.delete('1.0', 'end')
         textbox_on.insert('1.0', content)
@@ -65,12 +65,12 @@ class EncryptionWindow:
             temp = str(summ)
         self.length = 10  # int(temp) +
         index = 0
-        textline = ""
+        text_line = ""
         while index < self.length - 1:
             index += 1
-            textline += f"{index}\n"
+            text_line += f"{index}\n"
         if index == self.length - 1:
-            textline += f"{index + 1}"
+            text_line += f"{index + 1}"
 
         self.root = setroot
         self.root.title("Шифрование текста")
@@ -106,19 +106,16 @@ class EncryptionWindow:
                 main_frame, height = self.length,
                 borderwidth = 0.5,
                 relief = 'solid')
-        self.textbox_content.insert('1.0', textline)
+        self.textbox_content.insert('1.0', text_line)
         self.textbox_content.config(state = tk.DISABLED)
         self.textbox_content.place(relwidth = 1, y = 110)
 
-        # Текстовое поле - данные из файла с скроллингом
-        self.textbox_content_scroll = stext.ScrolledText(
+        # Текстовое поле - данные из файла со скроллингом
+        self.textbox_content_scroll = scroll_text.ScrolledText(
                 main_frame, height = self.length,
                 borderwidth = 0.5,
-                relief = 'solid')  # ,
-        #   state = tk.DISABLED
-        # self.textbox_content_scroll.place(relwidth = 1, y = 90)
-        # self.textbox_content_scroll.place_forget()
-        # self.textbox_content_scroll.place()
+                relief = 'solid',
+                state = tk.DISABLED)
 
         # Кнопка - «Загрузить файл»
         self.button_load = tk.Button(

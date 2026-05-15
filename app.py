@@ -2,6 +2,15 @@ import tkinter as tk
 from tkinter import (filedialog, messagebox as msgbox,
                      scrolledtext as scroll_text)
 
+import cypher
+
+
+# Ошибка: Файл содержит недопустимые символы в строке
+class FileInvalidCharacters(Exception):
+    def __init__ (self, index_line, *args):
+        message = f"Файл содержит недопустимые символы на строке №{index_line}"
+        super().__init__(message)
+
 
 class EncryptionWindow:
     length = "70220069"  # ID студента
@@ -42,6 +51,9 @@ class EncryptionWindow:
                         text = "Файл загружен",
                         foreground = "green")
 
+            except FileInvalidCharacters as error:
+                self.label_error.config(
+                        text = f"   Ошибка: {error}")
             except Exception:
                 self.label_error.config(
                         text = f"   Ошибка: Не удалось открыть файл")
@@ -53,6 +65,12 @@ class EncryptionWindow:
         textbox_on.delete('1.0', 'end')
 
         for index, line in enumerate(data_lines):
+            # Проверка строки на неразрешенные символы
+            text_chars = set(line)
+            allowed_set = set(cypher.CHAR_ARRAY + "\n")
+            invalid_chars = text_chars - allowed_set
+            if invalid_chars != set(): raise FileInvalidCharacters(index + 1)
+
             if line != "\n":
                 textbox_on.insert('end', line)
 

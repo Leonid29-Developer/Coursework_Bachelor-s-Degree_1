@@ -123,6 +123,35 @@ class EncryptionWindow:
             self.label_error.config(
                     text = f"   Ошибка: Файл недоступен для записи")
 
+    # Сохранить набором строк в новый файл, предварительно их зашифровав
+    def encrypt_save_as (self):
+        try:
+            # Вызов диалогового окна сохранения
+            file_path = filedialog.asksaveasfilename(
+                    title = "Сохранить файл",
+                    filetypes = [
+                            ("Текстовые файлы", "*.txt"),
+                            ("Все файлы", "*.*")
+                            ],
+                    initialfile = "encrypt_2.txt",  # Файл по умолчанию
+                    defaultextension = ".txt"
+                    )
+
+            with open(
+                    file_path,
+                    "w",
+                    encoding = "utf-8") as file_result:
+                for line in self.data_lines:
+                    file_result.write(
+                            f"{cypher.encrypt(line.rstrip('\n'))}\n")
+
+            # Перезапись текстового поля данными из выбранного файла
+            self.process_file(file_path)
+
+        except (PermissionError, OSError):
+            self.label_error.config(
+                    text = f"   Ошибка: Файл недоступен для записи")
+
     def __init__ (self, setroot):
         # Вычисление количества строк для content
         temp = self.ID
@@ -154,7 +183,7 @@ class EncryptionWindow:
         self.root = setroot
         self.root.title("Шифрование текста")
         self.root.geometry(
-                f"300x{235 + 16 * (self.length_content + self.length_add)}")
+                f"300x{270 + 16 * (self.length_content + self.length_add)}")
         main_frame = tk.Frame(setroot)
         main_frame.place(relwidth = 1, relheight = 1)
 
@@ -245,6 +274,16 @@ class EncryptionWindow:
         self.button_encrypt_save.place(
                 x = 100,
                 y = 165 + 16 * (self.length_content + self.length_add),
+                height = 25,
+                width = 180)
+
+        # Кнопка - Зашифровать и сохранить в новый файл
+        self.button_encrypt_save = tk.Button(
+                main_frame, text = "Зашифровать и сохранить как",
+                command = self.encrypt_save_as)
+        self.button_encrypt_save.place(
+                x = 100,
+                y = 200 + 16 * (self.length_content + self.length_add),
                 height = 25,
                 width = 180)
 

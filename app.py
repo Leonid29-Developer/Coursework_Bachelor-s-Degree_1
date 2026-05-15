@@ -107,14 +107,21 @@ class EncryptionWindow:
 
     # Перезаписать открытый файл новым набором строк, предварительно их зашифровав
     def encrypt_save (self):
-        with open(
-                self.label_path["text"].replace("Выбран файл: ", ""),
-                "w",
-                encoding = "utf-8") as file_result:
-            for line in self.data_lines:
-                file_result.write(f"{cypher.encrypt(line.rstrip('\n'))}\n")
+        try:
+            with open(
+                    self.label_path["text"].replace("Выбран файл: ", ""),
+                    "w",
+                    encoding = "utf-8") as file_result:
+                for line in self.data_lines:
+                    file_result.write(f"{cypher.encrypt(line.rstrip('\n'))}\n")
 
-        self.process_file(self.label_path["text"].replace("Выбран файл: ", ""))
+            # Перезапись текстового поля данными из перезаписанного файла
+            self.process_file(
+                    self.label_path["text"].replace("Выбран файл: ", ""))
+
+        except (PermissionError, OSError):
+            self.label_error.config(
+                    text = f"   Ошибка: Файл недоступен для записи")
 
     def __init__ (self, setroot):
         # Вычисление количества строк для content
@@ -240,16 +247,6 @@ class EncryptionWindow:
                 y = 165 + 16 * (self.length_content + self.length_add),
                 height = 25,
                 width = 180)
-
-        # Квартира78
-        # Кофе)йнОе @ утро
-        # loGin2 * 24
-        # домОвОй >> 859: 3
-        # Верю: справитесь
-
-        # except (PermissionError, OSError):
-        # self.label_error.config(
-        #         text = f"   Ошибка: Файл недоступен для записи")
 
     # Обработчик события; Нажатие по текстовому полю — очищает содержимое при условии
     def on_text_click (self, event):

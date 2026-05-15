@@ -105,6 +105,24 @@ class EncryptionWindow:
 
         self.textbox_add.delete('1.0', 'end')
 
+    # Расшифровать открытый файл
+    def decrypt (self):
+        data_lines_temp = self.data_lines
+        for index, line in enumerate(data_lines_temp):
+            data_lines_temp[index] = f"{cypher.decrypt(line.rstrip('\n'))}\n"
+        self.data_lines = data_lines_temp
+
+        if len(self.data_lines) > self.length_content:
+            EncryptionWindow.progress_content(
+                    self.textbox_content_scroll,
+                    self.textbox_content,
+                    self.data_lines)
+        else:
+            EncryptionWindow.progress_content(
+                    self.textbox_content,
+                    self.textbox_content_scroll,
+                    self.data_lines)
+
     # Перезаписать открытый файл новым набором строк, предварительно их зашифровав
     def encrypt_save (self):
         try:
@@ -183,7 +201,7 @@ class EncryptionWindow:
         self.root = setroot
         self.root.title("Шифрование текста")
         self.root.geometry(
-                f"300x{270 + 16 * (self.length_content + self.length_add)}")
+                f"300x{290 + 16 * (self.length_content + self.length_add)}")
         main_frame = tk.Frame(setroot)
         main_frame.place(relwidth = 1, relheight = 1)
 
@@ -238,13 +256,23 @@ class EncryptionWindow:
                 foreground = "red")
         self.label_load.place(relx = 0.53, y = 12, height = 40, width = 100)
 
+        # Кнопка - «Расшифровать»
+        self.button_decrypt = tk.Button(
+                main_frame, text = "Распшифрповать",
+                command = self.decrypt)
+        self.button_decrypt.place(
+                x = 150,
+                y = 120 + 16 * self.length_content,
+                height = 25,
+                width = 120)
+
         # Текст - «Новая строка»
         self.label = tk.Label(main_frame, text = "Новая строка", anchor = "w")
         self.label.place(
                 x = 10,
-                y = 125 + 16 * self.length_content,
+                y = 145 + 16 * self.length_content,
                 height = 20,
-                relwidth = 100)
+                relwidth = 0.5)
 
         # Текстовое поле - добавление новых строк
         self.textbox_add = tk.Text(
@@ -255,7 +283,7 @@ class EncryptionWindow:
         self.textbox_add.bind("<Button-1>", self.on_text_click)
         self.textbox_add.place(
                 relwidth = 1,
-                y = 150 + 16 * self.length_content)
+                y = 170 + 16 * self.length_content)
 
         # Кнопка - «Добавить»
         self.button_load = tk.Button(
@@ -263,7 +291,7 @@ class EncryptionWindow:
                 command = self.progress_add)
         self.button_load.place(
                 x = 10,
-                y = 165 + 16 * (self.length_content + self.length_add),
+                y = 185 + 16 * (self.length_content + self.length_add),
                 height = 25,
                 width = 70)
 
@@ -273,7 +301,7 @@ class EncryptionWindow:
                 command = self.encrypt_save)
         self.button_encrypt_save.place(
                 x = 100,
-                y = 165 + 16 * (self.length_content + self.length_add),
+                y = 185 + 16 * (self.length_content + self.length_add),
                 height = 25,
                 width = 180)
 
@@ -283,7 +311,7 @@ class EncryptionWindow:
                 command = self.encrypt_save_as)
         self.button_encrypt_save.place(
                 x = 100,
-                y = 200 + 16 * (self.length_content + self.length_add),
+                y = 220 + 16 * (self.length_content + self.length_add),
                 height = 25,
                 width = 180)
 

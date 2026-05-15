@@ -5,10 +5,10 @@ from tkinter import (filedialog, messagebox as msgbox,
 
 class EncryptionWindow:
     length = "70220069"  # ID студента
-    Data = ""  # Обрабатываемые данные (текст)
+    data_lines = ""  # Обрабатываемые данные (текст)
 
+    # Открывает диалоговое окно выбора файла
     def file_load (self):
-        # Открывает диалоговое окно выбора файла
         filename = filedialog.askopenfilename(
                 title = "Загрузить файл",
                 initialdir = "./Data/",  # Начальная директория
@@ -21,36 +21,41 @@ class EncryptionWindow:
             self.label_path.config(text = f"Выбран файл: {filename}")
             self.process_file(filename)
 
+    # Обработка выбранного файла
     def process_file (self, filename):
-        # Обработка выбранного файла
-
         with open(filename, "r", encoding = "utf-8") as file:
             try:
-                content = file.read()
-                self.Data = content
+                self.data_lines = list(file)
 
-                if content.count('\n') + 1 > self.length:
-                    EncryptionWindow.content_set(
+                if len(self.data_lines) > self.length:
+                    EncryptionWindow.progress_content(
                             self.textbox_content_scroll,
                             self.textbox_content,
-                            content)
+                            self.data_lines)
                 else:
-                    EncryptionWindow.content_set(
-                            self.textbox_content_scroll,
+                    EncryptionWindow.progress_content(
                             self.textbox_content,
-                            content)
+                            self.textbox_content_scroll,
+                            self.data_lines)
 
-                raise  # вызов ошибки
+                self.label_load.config(
+                        text = "Файл загружен",
+                        foreground = "green")
 
             except Exception:
                 self.label_error.config(
                         text = f"   Ошибка: Не удалось открыть файл")
 
     @staticmethod
-    def content_set (textbox_on, textbox_off, content):
+    # Перезапись текстового поля данными из выбранного файла
+    def progress_content (textbox_on, textbox_off, data_lines):
         textbox_on.config(state = "normal")
         textbox_on.delete('1.0', 'end')
-        textbox_on.insert('1.0', content)
+
+        for index, line in enumerate(data_lines):
+            if line != "\n":
+                textbox_on.insert('end', line)
+
         textbox_on.config(state = tk.DISABLED)
         textbox_on.place(relwidth = 1, y = 110)
         textbox_off.place_forget()
@@ -85,7 +90,8 @@ class EncryptionWindow:
                 anchor = "w",
                 foreground = "red",
                 borderwidth = 0.5,
-                relief = 'solid')
+                relief = 'solid',
+                wraplength = 300)
         self.label_error.pack(side = "bottom", fill = "x")
 
         # Текст - Путь к файлу

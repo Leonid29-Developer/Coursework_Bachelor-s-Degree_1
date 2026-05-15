@@ -13,7 +13,7 @@ CHAR_ARRAY = (
 )
 
 
-def encrypt(text, sid=70220069):
+def encrypt (text, sid = 70220069):
     """
     Шифрует текстовое сообщение с помощью кода Цезаря (сдвиг вправо)
 
@@ -34,7 +34,6 @@ def encrypt(text, sid=70220069):
 
     for char in text:
         if char in CHAR_ARRAY:
-
             index = CHAR_ARRAY.index(char)
             new_index = (index + shift) % array_length
             encrypted.append(CHAR_ARRAY[new_index])
@@ -46,7 +45,7 @@ def encrypt(text, sid=70220069):
     return ''.join(encrypted)
 
 
-def decrypt(text, sid=70220069):
+def decrypt (text, sid = 70220069):
     """
     Дешифрует текстовое сообщение с помощью кода Цезаря (сдвиг влево).
 
@@ -67,7 +66,6 @@ def decrypt(text, sid=70220069):
 
     for char in text:
         if char in CHAR_ARRAY:
-
             index = CHAR_ARRAY.index(char)
             new_index = (index - shift) % array_length
             decrypted.append(CHAR_ARRAY[new_index])
@@ -79,19 +77,18 @@ def decrypt(text, sid=70220069):
     return ''.join(decrypted)
 
 
-def process_files():
+def process_files ():
     """Обрабатывает файлы encrypt.txt и decrypt.txt
     записывает результаты в файлы encrypt_result.txt и decrypt_result.txt"""
 
     # Обработка файла для шифрования
     if os.path.exists("Data/encrypt.txt"):
-
         index = 0
-        with open("Data/encrypt.txt", "r", encoding="utf-8") as f:
-            with open("Data/encrypt_result.txt", "w",
-                      encoding="utf-8") as f_result:
+        with open("Data/encrypt.txt", "r", encoding = "utf-8") as f:
+            with open(
+                    "Data/encrypt_result.txt", "w",
+                    encoding = "utf-8") as f_result:
                 for line in f:
-
                     index += 1
                     text_result = (f"Тестовый кейс зашифровки - {index}:\n" +
                                    f"ID студента: 70220069\n" +
@@ -110,13 +107,12 @@ def process_files():
 
     # Обработка файла для дешифрования
     if os.path.exists("Data/decrypt.txt"):
-
         index = 0
-        with open("Data/decrypt.txt", "r", encoding="utf-8") as f:
-            with open("Data/decrypt_result.txt", "w",
-                      encoding="utf-8") as f_result:
+        with open("Data/decrypt.txt", "r", encoding = "utf-8") as f:
+            with open(
+                    "Data/decrypt_result.txt", "w",
+                    encoding = "utf-8") as f_result:
                 for line in f:
-
                     index += 1
                     text_result = (f"Тестовый кейс дешифрования - {index}:\n" +
                                    f"ID студента: 70220069\n" +
@@ -136,9 +132,9 @@ def process_files():
 
 if __name__ == "__main__":
     print(
-        f"{"=" * 60}\nЗапуск модуля напрямую. Обработка файлов encrypt.txt и" +
-        f" decrypt.txt\n{"=" * 60}")
+            f"{"=" * 60}\nЗапуск модуля напрямую. Обработка файлов encrypt.txt и" +
+            f" decrypt.txt\n{"=" * 60}")
     process_files()
     print(
-        f"{"=" * 60}\nОбработка завершена. Результаты записаны в encrypt_result.txt" +
-        f" и decrypt_result.txt\n{"=" * 60}")
+            f"{"=" * 60}\nОбработка завершена. Результаты записаны в encrypt_result.txt" +
+            f" и decrypt_result.txt\n{"=" * 60}")

@@ -1,6 +1,5 @@
 import tkinter as tk
-from tkinter import (filedialog, messagebox as msgbox,
-                     scrolledtext as scroll_text)
+from tkinter import (filedialog, scrolledtext as scroll_text)
 
 import cypher
 
@@ -15,8 +14,8 @@ class FileInvalidCharacters(Exception):
 class EncryptionWindow:
     ID = "70220069"  # ID студента
     length_content = ""  # Количество отображаемых строк для данных из файла
-    length_add = 3 + int(
-            ID) % 4  # Количество отображаемых строк для добавления в файл
+    # Количество отображаемых строк для добавления в файл
+    length_add = 3 + int(ID) % 4
     data_lines = ""  # Обрабатываемые данные (текст)
 
     # Открывает диалоговое окно выбора файла
@@ -36,6 +35,11 @@ class EncryptionWindow:
 
     # Обработка выбранного файла
     def process_file (self, filename):
+        """
+        Параметры:
+        filename (str): Абсолютный путь к открываемому файлу
+        """
+
         with open(filename, "r", encoding = "utf-8") as file:
             try:
                 self.data_lines = list(file)
@@ -70,6 +74,12 @@ class EncryptionWindow:
     @staticmethod
     # Перезапись текстового поля данными из выбранного файла
     def progress_content (textbox_on, textbox_off, data_lines):
+        """
+        Параметры:
+        textbox_on (Text): Текстовое поле, в которое будут записаны данные
+        textbox_off (Text): Текстовое поле, которое будет скрыто от пользователя
+        data_lines (list): Список строк данных
+        """
         textbox_on.config(state = "normal")
         textbox_on.delete('1.0', 'end')
 
@@ -258,7 +268,7 @@ class EncryptionWindow:
 
         # Кнопка - «Расшифровать»
         self.button_decrypt = tk.Button(
-                main_frame, text = "Распшифрповать",
+                main_frame, text = "Расшифровать",
                 command = self.decrypt)
         self.button_decrypt.place(
                 x = 150,
@@ -316,7 +326,7 @@ class EncryptionWindow:
                 width = 180)
 
     # Обработчик события; Нажатие по текстовому полю — очищает содержимое при условии
-    def on_text_click (self, event):
+    def on_text_click (self, _):
         if "1\n2\n" in self.textbox_add.get('1.0', 'end'):
             self.textbox_add.delete('1.0', 'end')
 

@@ -13,8 +13,12 @@ class FileInvalidCharacters(Exception):
 
 
 class EncryptionWindow:
-    length = "70220069"  # ID студента
+    ID = "70220069"  # ID студента
+    length_content = ""  # Количество отображаемых строк для данных из файла
+    length_add = 3 + int(
+            ID) % 4  # Количество отображаемых строк для добавления в файл
     data_lines = ""  # Обрабатываемые данные (текст)
+    add_lines = ""  # Добавляемые данные (текст)
 
     # Открывает диалоговое окно выбора файла
     def file_load (self):
@@ -27,6 +31,7 @@ class EncryptionWindow:
                         ("Все файлы", "*.*")])
 
         if filename:  # Если файл выбран
+            self.label_error.config(text = "")
             self.label_path.config(text = f"Выбран файл: {filename}")
             self.process_file(filename)
 
@@ -36,7 +41,7 @@ class EncryptionWindow:
             try:
                 self.data_lines = list(file)
 
-                if len(self.data_lines) > self.length:
+                if len(self.data_lines) > self.length_content:
                     EncryptionWindow.progress_content(
                             self.textbox_content_scroll,
                             self.textbox_content,
@@ -53,9 +58,15 @@ class EncryptionWindow:
 
             except FileInvalidCharacters as error:
                 self.label_error.config(text = f"   Ошибка: {error}")
+                self.label_load.config(
+                        text = "Файл не загружен",
+                        foreground = "red")
             except Exception:
                 self.label_error.config(
                         text = f"   Ошибка: Не удалось открыть файл")
+                self.label_load.config(
+                        text = "Файл не загружен",
+                        foreground = "red")
 
     @staticmethod
     # Перезапись текстового поля данными из выбранного файла
@@ -77,27 +88,58 @@ class EncryptionWindow:
         textbox_on.place(relwidth = 1, y = 110)
         textbox_off.place_forget()
 
+    # Добавление новых строк в текстовое поле content
+    def progress_add (self):
+        self.data_lines.append(
+            f"\n{self.textbox_add.get('1.0', 'end').rstrip('\n')}")
+
+        print(self.data_lines)
+
+        if len(self.data_lines) > self.length_content:
+            EncryptionWindow.progress_content(
+                    self.textbox_content_scroll,
+                    self.textbox_content,
+                    self.data_lines)
+        else:
+            EncryptionWindow.progress_content(
+                    self.textbox_content,
+                    self.textbox_content_scroll,
+                    self.data_lines)
+
+        self.textbox_add.delete('1.0', 'end')
+
     def __init__ (self, setroot):
-        # Вычисление количества строк и создание текста
-        temp = self.length
+        # Вычисление количества строк для content
+        temp = self.ID
         while len(temp) != 1:
             summ = 0
             for char in temp:
                 summ += int(char)
             temp = str(summ)
-        self.length = 10  # int(temp) +
+        self.length_content = 10 + int(temp)
+
+        # Создание текста для content
         index = 0
-        text_line = ""
-        while index < self.length - 1:
+        text_content_line = ""
+        while index < self.length_content - 1:
             index += 1
-            text_line += f"{index}\n"
-        if index == self.length - 1:
-            text_line += f"{index + 1}"
+            text_content_line += f"{index}\n"
+        if index == self.length_content - 1:
+            text_content_line += f"{index + 1}"
+
+        # Создание текста для content
+        index = 0
+        text_add_line = ""
+        while index < self.length_add - 1:
+            index += 1
+            text_add_line += f"{index}\n"
+        if index == self.length_add - 1:
+            text_add_line += f"{index + 1}"
 
         self.root = setroot
         self.root.title("Шифрование текста")
-        self.root.geometry(f"300x{40 * self.length}")
-
+        self.root.geometry(
+                f"300x{235 + 16 * (self.length_content + self.length_add)}")
         main_frame = tk.Frame(setroot)
         main_frame.place(relwidth = 1, relheight = 1)
 
@@ -121,21 +163,20 @@ class EncryptionWindow:
                 y = 80,
                 height = 100,
                 relwidth = 1,
-                anchor = "center"
-                )
+                anchor = "center")
 
         # Текстовое поле - данные из файла без скроллинга
         self.textbox_content = tk.Text(
-                main_frame, height = self.length,
+                main_frame, height = self.length_content,
                 borderwidth = 0.5,
                 relief = 'solid')
-        self.textbox_content.insert('1.0', text_line)
+        self.textbox_content.insert('1.0', text_content_line)
         self.textbox_content.config(state = tk.DISABLED)
         self.textbox_content.place(relwidth = 1, y = 110)
 
         # Текстовое поле - данные из файла со скроллингом
         self.textbox_content_scroll = scroll_text.ScrolledText(
-                main_frame, height = self.length,
+                main_frame, height = self.length_content,
                 borderwidth = 0.5,
                 relief = 'solid',
                 state = tk.DISABLED)
@@ -152,6 +193,40 @@ class EncryptionWindow:
                 text = "Файл не загружен",
                 foreground = "red")
         self.label_load.place(relx = 0.53, y = 12, height = 40, width = 100)
+
+        # Текст - «Новая строка»
+        self.label = tk.Label(main_frame, text = "Новая строка", anchor = "w")
+        self.label.place(
+                x = 10,
+                y = 125 + 16 * self.length_content,
+                height = 20,
+                relwidth = 100)
+
+        # Текстовое поле - добавление новых строк
+        self.textbox_add = tk.Text(
+                main_frame, height = self.length_add,
+                borderwidth = 0.5,
+                relief = 'solid')
+        self.textbox_add.insert('1.0', text_add_line)
+        self.textbox_add.bind("<Button-1>", self.on_text_click)
+        self.textbox_add.place(
+                relwidth = 1,
+                y = 150 + 16 * self.length_content)
+
+        # Кнопка - «Добавить»
+        self.button_load = tk.Button(
+                main_frame, text = "Добавить",
+                command = self.progress_add)
+        self.button_load.place(
+                x = 10,
+                y = 165 + 16 * (self.length_content + self.length_add),
+                height = 25,
+                width = 70)
+
+    # Обработчик события; Нажатие по текстовому полю — очищает содержимое при условии
+    def on_text_click (self, event):
+        if "1\n2\n" in self.textbox_add.get('1.0', 'end'):
+            self.textbox_add.delete('1.0', 'end')
 
 
 # Создание и запуск приложения

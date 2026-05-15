@@ -18,7 +18,6 @@ class EncryptionWindow:
     length_add = 3 + int(
             ID) % 4  # Количество отображаемых строк для добавления в файл
     data_lines = ""  # Обрабатываемые данные (текст)
-    add_lines = ""  # Добавляемые данные (текст)
 
     # Открывает диалоговое окно выбора файла
     def file_load (self):
@@ -91,9 +90,7 @@ class EncryptionWindow:
     # Добавление новых строк в текстовое поле content
     def progress_add (self):
         self.data_lines.append(
-            f"\n{self.textbox_add.get('1.0', 'end').rstrip('\n')}")
-
-        print(self.data_lines)
+                f"\n{self.textbox_add.get('1.0', 'end').rstrip('\n')}")
 
         if len(self.data_lines) > self.length_content:
             EncryptionWindow.progress_content(
@@ -107,6 +104,17 @@ class EncryptionWindow:
                     self.data_lines)
 
         self.textbox_add.delete('1.0', 'end')
+
+    # Перезаписать открытый файл новым набором строк, предварительно их зашифровав
+    def encrypt_save (self):
+        with open(
+                self.label_path["text"].replace("Выбран файл: ", ""),
+                "w",
+                encoding = "utf-8") as file_result:
+            for line in self.data_lines:
+                file_result.write(f"{cypher.encrypt(line.rstrip('\n'))}\n")
+
+        self.process_file(self.label_path["text"].replace("Выбран файл: ", ""))
 
     def __init__ (self, setroot):
         # Вычисление количества строк для content
@@ -222,6 +230,26 @@ class EncryptionWindow:
                 y = 165 + 16 * (self.length_content + self.length_add),
                 height = 25,
                 width = 70)
+
+        # Кнопка - «Зашифровать и сохранить»
+        self.button_encrypt_save = tk.Button(
+                main_frame, text = "Зашифровать и сохранить",
+                command = self.encrypt_save)
+        self.button_encrypt_save.place(
+                x = 100,
+                y = 165 + 16 * (self.length_content + self.length_add),
+                height = 25,
+                width = 180)
+
+        # Квартира78
+        # Кофе)йнОе @ утро
+        # loGin2 * 24
+        # домОвОй >> 859: 3
+        # Верю: справитесь
+
+        # except (PermissionError, OSError):
+        # self.label_error.config(
+        #         text = f"   Ошибка: Файл недоступен для записи")
 
     # Обработчик события; Нажатие по текстовому полю — очищает содержимое при условии
     def on_text_click (self, event):

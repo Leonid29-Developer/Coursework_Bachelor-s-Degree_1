@@ -7,7 +7,7 @@ import cypher
 
 # Ошибка: Файл содержит недопустимые символы в строке
 class FileInvalidCharacters(Exception):
-    def __init__ (self, index_line, *args):
+    def __init__ (self, index_line):
         message = f"Файл содержит недопустимые символы на строке №{index_line}"
         super().__init__(message)
 
@@ -52,8 +52,7 @@ class EncryptionWindow:
                         foreground = "green")
 
             except FileInvalidCharacters as error:
-                self.label_error.config(
-                        text = f"   Ошибка: {error}")
+                self.label_error.config(text = f"   Ошибка: {error}")
             except Exception:
                 self.label_error.config(
                         text = f"   Ошибка: Не удалось открыть файл")

@@ -46,10 +46,13 @@ app = Flask(__name__)
 
 @app.route('/70220069/', methods = ['GET', 'POST'])
 def home ():
-    if request.method == 'POST':
-        save_csv(request.form['text'])
+    try:
+        if request.method == 'POST':
+            save_csv(request.form['text'])
+        return run('encryption.html')
 
-    return run('encryption.html')
+    except Exception:
+        return run('error.html')
 
 
 if __name__ == '__main__':

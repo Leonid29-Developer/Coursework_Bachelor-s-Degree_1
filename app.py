@@ -26,6 +26,7 @@ class EncryptionWindow:
                 initialfile = "encrypt.txt",  # Файл по умолчанию
                 filetypes = [
                         ("Текстовые файлы", "*.txt"),
+                        ("Текстовые файлы CSV", "*.csv"),
                         ("Все файлы", "*.*")])
 
         if filename:  # Если файл выбран
@@ -159,6 +160,7 @@ class EncryptionWindow:
                     title = "Сохранить файл",
                     filetypes = [
                             ("Текстовые файлы", "*.txt"),
+                            ("Текстовые файлы CSV", "*.csv"),
                             ("Все файлы", "*.*")
                             ],
                     initialfile = "encrypt_2.txt",  # Файл по умолчанию

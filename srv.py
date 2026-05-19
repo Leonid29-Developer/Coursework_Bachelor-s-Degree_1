@@ -1,12 +1,11 @@
-from idlelib.iomenu import encoding
-from operator import truediv
-from pathlib import Path
-import json
-from flask import Flask, render_template as run, request, jsonify, Response
-import logging
-from datetime import datetime
-import os
 import csv
+import json
+import logging
+import os
+from datetime import datetime
+
+from flask import Flask, render_template as run, request, Response
+
 import cypher  # Модуль шифрования
 
 # Настройка логирования
@@ -15,14 +14,17 @@ import cypher  # Модуль шифрования
 os.makedirs('logs', exist_ok = True)
 
 # Обработчик для файла: DEBUG и выше
+
 file_handler = logging.FileHandler('logs/requests.log', encoding = 'utf-8')
 file_handler.setLevel(logging.DEBUG)
+# noinspection SpellCheckingInspection
 file_handler.setFormatter(
         logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 
 # Обработчик для консоли: WARNING и выше
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.WARNING)
+# noinspection SpellCheckingInspection
 console_handler.setFormatter(
         logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 
@@ -33,6 +35,7 @@ logging.getLogger('werkzeug').addHandler(file_handler)
 logger.addHandler(console_handler)
 
 
+# Создает файл CSV с нужными заголовками (первой строкой)
 def create_csv ():
     if not os.path.isfile('Data/messages.csv'):
         with open(
@@ -88,6 +91,7 @@ def save_csv (ip, message):
                  cypher.encrypt(message)])
 
 
+# noinspection PyBroadException
 @app.route('/70220069/', methods = ['GET', 'POST'])
 def home ():
     try:
@@ -108,6 +112,7 @@ def reset ():
     return run('reset.html')
 
 
+# Чтение данных файла CSV для JSON
 def read_csv (decrypt):
     data = []
     with open('Data/messages.csv', 'r', encoding = 'utf-8') as file:
@@ -119,6 +124,7 @@ def read_csv (decrypt):
     return data
 
 
+# noinspection PyBroadException
 @app.route('/get_all.json/', methods = ['GET'])
 def get_all ():
     try:
@@ -133,6 +139,7 @@ def get_all ():
         return run('error.html')
 
 
+# noinspection PyBroadException
 @app.route('/get_all_decrypted.json/', methods = ['GET'])
 def get_all_decrypted ():
     try:

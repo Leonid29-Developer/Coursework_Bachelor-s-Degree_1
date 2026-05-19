@@ -49,7 +49,12 @@ def home ():
     try:
         if request.method == 'POST':
             save_csv(request.form['text'])
-        return run('encryption.html')
+            return run('result.html', msg = request.form['text'])
+
+        else:
+            logging.debug('Главная')
+            return run('encryption.html')
+
 
     except Exception:
         return run('error.html')

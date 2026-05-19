@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<HTML>
+<HEAD>
+    <TITLE>Шифрование текста</TITLE>
+</HEAD>
+<BODY onload = "showConfirm()">
+<FORM>
+    <script>
+        function showConfirm() {
+            if (confirm("Подтвердите удаление файла messages.csv")) {
+                fetch('/reset/', {method: 'POST'})
+            }
+        }
+    </script>
+</FORM>
+<P>messages.csv стёрт</P>
+</BODY>
+</HTML>

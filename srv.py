@@ -76,12 +76,17 @@ def home ():
             save_csv(request.remote_addr, request.form['text'])
             return run('result.html', msg = request.form['text'])
 
-        else:
-            return run('encryption.html')
-
+        else: return run('encryption.html')
 
     except Exception:
         return run('error.html')
+
+
+@app.route('/reset/', methods = ['GET', 'POST'])
+def reset ():
+    if request.method == 'POST':
+        os.remove('Data/messages.csv')
+    return run('reset.html')
 
 
 if __name__ == '__main__':

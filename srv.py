@@ -6,7 +6,7 @@ import logging
 from datetime import datetime
 import os
 import csv
-import cypher  # модуль шифрования
+import cypher  # Модуль шифрования
 
 # Настройка логирования
 
@@ -69,6 +69,10 @@ def save_csv (ip, message):
 app = Flask(__name__)
 
 
+@app.route('/')
+def main ():
+    return run('main.html')
+
 @app.route('/70220069/', methods = ['GET', 'POST'])
 def home ():
     try:
@@ -84,7 +88,7 @@ def home ():
 
 @app.route('/reset/', methods = ['GET', 'POST'])
 def reset ():
-    if request.method == 'POST':
+    if request.method == 'POST' and os.path.exists('Data/messages.csv'):
         os.remove('Data/messages.csv')
     return run('reset.html')
 

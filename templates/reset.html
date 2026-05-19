@@ -6,13 +6,20 @@
 <BODY onload = "showConfirm()">
 <FORM>
     <script>
-        function showConfirm() {
-            if (confirm("Подтвердите удаление файла messages.csv")) {
-                fetch('/reset/', {method: 'POST'})
+        function showConfirm()
+            {
+                if (confirm("Подтвердите удаление файла messages.csv"))
+                    {
+                        fetch('/reset/', {method: 'POST'})
+                    }
+                else
+                    {
+                        window.location.href = "/"
+                    }
             }
-        }
     </script>
 </FORM>
-<P>messages.csv стёрт</P>
+<P style = "font-size: larger">messages.csv стёрт</P>
+<a href = "/">Вернуться на главную страницу</a><br>
 </BODY>
 </HTML>

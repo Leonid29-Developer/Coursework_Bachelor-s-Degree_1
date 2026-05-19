@@ -1,7 +1,8 @@
 from idlelib.iomenu import encoding
 from operator import truediv
-
-from flask import Flask, render_template as run, request, jsonify
+from pathlib import Path
+import json
+from flask import Flask, render_template as run, request, jsonify, Response
 import logging
 from datetime import datetime
 import os
@@ -32,6 +33,25 @@ logging.getLogger('werkzeug').addHandler(file_handler)
 logger.addHandler(console_handler)
 
 
+def create_csv ():
+    if not os.path.isfile('Data/messages.csv'):
+        with open(
+                'Data/messages.csv',
+                'a',
+                newline = '',
+                encoding = 'utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerow(["datetime", "id", "ip", "text"])
+
+
+app = Flask(__name__)
+
+
+@app.route('/')
+def main ():
+    return run('main.html')
+
+
 # Поиск индекса, начиная с 1
 def find_missing_index (array):
     min_value = min(array)
@@ -42,9 +62,10 @@ def find_missing_index (array):
 
 # Получение свободного индекса, поиск не занятых начиная с 1
 def get_index ():
-    if os.path.getsize('Data/messages.csv') > 0:
+    if os.path.getsize('Data/messages.csv') > 21:
         index_array = []
         with open('Data/messages.csv', 'r', encoding = 'utf-8') as file:
+            file.readline()
             reader = csv.reader(file)
             for row in reader:
                 index_array.append(int(row[1]))
@@ -55,6 +76,7 @@ def get_index ():
 
 # Сохраняет сообщение в CSV‑файл
 def save_csv (ip, message):
+    create_csv()
     with open(
             'Data/messages.csv',
             'a',
@@ -65,13 +87,6 @@ def save_csv (ip, message):
                 [datetime.now().strftime('%Y-%m-%d %H:%M:%S'), get_index(), ip,
                  cypher.encrypt(message)])
 
-
-app = Flask(__name__)
-
-
-@app.route('/')
-def main ():
-    return run('main.html')
 
 @app.route('/70220069/', methods = ['GET', 'POST'])
 def home ():
@@ -91,6 +106,26 @@ def reset ():
     if request.method == 'POST' and os.path.exists('Data/messages.csv'):
         os.remove('Data/messages.csv')
     return run('reset.html')
+
+
+def read_csv ():
+    data = []
+    with open('Data/messages.csv', 'r', encoding = 'utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            data.append(row)
+    return data
+
+
+@app.route('/get_all.json/', methods = ['GET'])
+def get_all ():
+    try:
+        json_output = json.dumps(read_csv(), ensure_ascii = False, indent = 2)
+        return Response(
+                json_output,
+                mimetype = 'application/json; charset=utf-8')
+    except Exception:
+        return run('error.html')
 
 
 if __name__ == '__main__':

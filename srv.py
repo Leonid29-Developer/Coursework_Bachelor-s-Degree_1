@@ -108,11 +108,13 @@ def reset ():
     return run('reset.html')
 
 
-def read_csv ():
+def read_csv (decrypt):
     data = []
     with open('Data/messages.csv', 'r', encoding = 'utf-8') as file:
         reader = csv.DictReader(file)
         for row in reader:
+            if decrypt:
+                row['text'] = cypher.decrypt(row['text'])
             data.append(row)
     return data
 
@@ -120,7 +122,24 @@ def read_csv ():
 @app.route('/get_all.json/', methods = ['GET'])
 def get_all ():
     try:
-        json_output = json.dumps(read_csv(), ensure_ascii = False, indent = 2)
+        json_output = json.dumps(
+                read_csv(False),
+                ensure_ascii = False,
+                indent = 2)
+        return Response(
+                json_output,
+                mimetype = 'application/json; charset=utf-8')
+    except Exception:
+        return run('error.html')
+
+
+@app.route('/get_all_decrypted.json/', methods = ['GET'])
+def get_all_decrypted ():
+    try:
+        json_output = json.dumps(
+                read_csv(True),
+                ensure_ascii = False,
+                indent = 2)
         return Response(
                 json_output,
                 mimetype = 'application/json; charset=utf-8')

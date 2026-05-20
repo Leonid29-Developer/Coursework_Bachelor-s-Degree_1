@@ -1,18 +1,25 @@
 import tkinter as tk
-from tkinter import ttk, filedialog
+from tkinter import ttk, filedialog, messagebox
 import csv
 import textwrap
 import logging
-
+import os
 import cypher  # Модуль шифрования
+
+
+# Ошибка - Чтение файла не CSV
+class FileReadingNotCSV(Exception):
+    def __init__ (self):
+        super().__init__("Файл должен иметь формат .csv")
 
 
 class CSVManagerApp:
     filename = ""
     data = []
+    logger = logging.getLogger(__name__)
 
     def __init__ (self):
-        CSVManagerApp.set_logger()
+        self.set_logger()
 
         self.root = root
         self.root.title("CSV Manager - управление контентом")
@@ -74,19 +81,27 @@ class CSVManagerApp:
         self.scroll_y.pack(side = "right", fill = "y")
 
     # Настройка логирования
-    @staticmethod
-    def set_logger ():
-        file_handler = logging.FileHandler('logs/manager.log')
+    def set_logger (self):
+        # Повторное создание папки для логов, если удалена
+        os.makedirs('logs', exist_ok = True)
 
+        # Обработчик для файла: DEBUG и выше
+        file_handler = logging.FileHandler(
+                'logs/manager.log',
+                encoding = 'utf-8')
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(
+                logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+        # Обработчик для консоли: WARNING и выше
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.WARNING)
+        console_handler.setFormatter(
+                logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 
-        logger = logging.getLogger(__name__)
-        logger.setLevel(logging.DEBUG)
-        logger.formatter = logging.Formatter(
-                '%(asctime)s - %(levelname)s - %(message)s')
-        logger.addHandler(file_handler)
-        logger.addHandler(console_handler)
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.addHandler(file_handler)
+        self.logger.addHandler(console_handler)
 
     # Перенос слов при длине строки более 75 символов
     def wrap (self, string, lenght = 75):
@@ -94,27 +109,37 @@ class CSVManagerApp:
 
     # Загрузка файла .csv
     def load_csv (self):
-        for item in self.table.get_children():
-            self.table.delete(item)
+        try:
+            for item in self.table.get_children():
+                self.table.delete(item)
 
-        self.filename = filedialog.askopenfilename(
-                title = "Загрузить файл",
-                initialdir = "./Data/",  # Начальная директория
-                initialfile = "messages.csv",  # Файл по умолчанию
-                filetypes = [("Текстовые файлы CSV", "*.csv")])
+            self.filename = filedialog.askopenfilename(
+                    title = "Загрузить файл",
+                    initialdir = "./Data/",  # Начальная директория
+                    initialfile = "messages.csv",  # Файл по умолчанию
+                    filetypes = [("Текстовые файлы CSV", "*.csv")])
 
-        with open(self.filename, 'r', encoding = 'utf-8') as file:
-            reader = csv.DictReader(file)
-            self.data = list(reader)
+            if os.path.splitext(self.filename)[1] == ".csv":
+                self.logger.info(f"[Прочитан файл csv] - {self.filename}")
+            else:
+                raise FileReadingNotCSV()
 
-        for row in self.data:
-            self.table.insert(
-                    '', 'end', values = (
-                            row["id"],
-                            row["datetime"],
-                            row["ip"],
-                            self.wrap(cypher.decrypt(row["text"]))
-                            ))
+            with open(self.filename, 'r', encoding = 'utf-8') as file:
+                reader = csv.DictReader(file)
+                self.data = list(reader)
+
+            for row in self.data:
+                self.table.insert(
+                        '', 'end', values = (
+                                row["id"],
+                                row["datetime"],
+                                row["ip"],
+                                self.wrap(cypher.decrypt(row["text"]))
+                                ))
+
+        except FileReadingNotCSV as error:
+            self.logger.error(f"[Ошибка чтения файла] - {self.filename}")
+            messagebox.showerror("Ошибка чтения файла", str(error))
 
 
 if __name__ == "__main__":

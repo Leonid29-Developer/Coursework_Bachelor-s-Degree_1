@@ -3,9 +3,7 @@ import json
 import logging
 import os
 from datetime import datetime
-
 from flask import Flask, render_template as run, request, Response
-
 import cypher  # Модуль шифрования
 
 # Настройка логирования
@@ -15,7 +13,7 @@ os.makedirs('logs', exist_ok = True)
 
 # Обработчик для файла: DEBUG и выше
 
-file_handler = logging.FileHandler('logs/requests.log', encoding = 'utf-8')
+file_handler = logging.FileHandler('logs/server.log', encoding = 'utf-8')
 file_handler.setLevel(logging.DEBUG)
 # noinspection SpellCheckingInspection
 file_handler.setFormatter(

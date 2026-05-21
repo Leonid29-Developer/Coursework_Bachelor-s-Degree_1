@@ -34,10 +34,10 @@ logger.addHandler(console_handler)
 
 
 # Создает файл CSV с нужными заголовками (первой строкой)
-def create_csv ():
-    if not os.path.isfile('Data/messages.csv'):
+def create_csv (filename):
+    if not os.path.isfile(filename):
         with open(
-                'Data/messages.csv',
+                filename,
                 'a',
                 newline = '',
                 encoding = 'utf-8') as file:
@@ -62,10 +62,10 @@ def find_missing_index (array):
 
 
 # Получение свободного индекса, поиск не занятых начиная с 1
-def get_index ():
-    if os.path.getsize('Data/messages.csv') > 21:
+def get_index (filename):
+    if os.path.getsize(filename) > 21:
         index_array = []
-        with open('Data/messages.csv', 'r', encoding = 'utf-8') as file:
+        with open(filename, 'r', encoding = 'utf-8') as file:
             file.readline()
             reader = csv.reader(file)
             for row in reader:
@@ -76,16 +76,17 @@ def get_index ():
 
 
 # Сохраняет сообщение в CSV‑файл
-def save_csv (ip, message):
-    create_csv()
+def save_csv (ip, message, filename):
+    create_csv(filename)
     with open(
-            'Data/messages.csv',
+            filename,
             'a',
             newline = '',
             encoding = 'utf-8') as file:
         writer = csv.writer(file)
         writer.writerow(
-                [datetime.now().strftime('%Y-%m-%d %H:%M:%S'), get_index(), ip,
+                [datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                 get_index(filename), ip,
                  cypher.encrypt(message)])
 
 
@@ -94,13 +95,25 @@ def save_csv (ip, message):
 def home ():
     try:
         if request.method == 'POST':
-            save_csv(request.remote_addr, request.form['text'])
+            save_csv(
+                    request.remote_addr,
+                    request.form['text'],
+                    'Data/messages.csv')
             return run('result.html', msg = request.form['text'])
 
         else: return run('encryption.html')
 
     except Exception:
         return run('error.html')
+
+
+@app.route('/hidden/', methods = ['POST'])
+def hidden_home ():
+    save_csv(
+            request.form['ip'],
+            request.form['text'],
+            request.form['filename'])
+    return
 
 
 @app.route('/reset/', methods = ['GET', 'POST'])
@@ -118,7 +131,6 @@ def read_csv (decrypt):
         for row in reader:
             if decrypt:
                 row['text'] = cypher.decrypt(row['text'])
-                print(row)
             data.append(row)
     return data
 

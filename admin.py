@@ -1,13 +1,17 @@
+import json
 import tkinter as tk
+from fileinput import filename
 from tkinter import ttk, filedialog, messagebox
 import csv
+from http.client import HTTPConnection as Connection
+import urllib.parse
 import textwrap
 import logging
 import os
-from venv import create
+from datetime import datetime
+import time
 
-import cypher  # Модуль шифрования
-from cypher import decrypt
+from cypher import encrypt, decrypt  # Модуль шифрования
 
 
 # Ошибка - Чтение файла не CSV
@@ -37,14 +41,21 @@ class CSVManagerApp:
                 top_frame,
                 text = "Загрузить .csv",
                 command = self.load_csv)
-        self.but_load.place(width = 100, height = 40, x = 20, y = 18)
+        self.but_load.place(width = 100, height = 40, x = 30, y = 18)
 
         # Кнопка - Создать Csv
         self.but_load = tk.Button(
                 top_frame,
                 text = "Создать .csv",
                 command = self.create_csv)
-        self.but_load.place(width = 100, height = 40, x = 140, y = 18)
+        self.but_load.place(width = 100, height = 40, x = 160, y = 18)
+
+        # Кнопка - Добавить новую строку
+        self.but_load = tk.Button(
+                top_frame,
+                text = "Добавить новую строку",
+                command = self.add_new_line)
+        self.but_load.place(width = 150, height = 40, x = 290, y = 18)
 
         # Основная область данных
         table_frame = tk.Frame(
@@ -152,7 +163,7 @@ class CSVManagerApp:
 
             error_index = False
             for row in self.data:
-                text_decrypt = cypher.decrypt(row["text"])
+                text_decrypt = decrypt(row["text"])
 
                 # Проверка строк на корректность
                 if text_decrypt == "er0":
@@ -198,7 +209,7 @@ class CSVManagerApp:
         self.data = []
 
         # Вызов диалогового окна сохранения
-        file_path = filedialog.asksaveasfilename(
+        self.filename = filedialog.asksaveasfilename(
                 title = "Сохранить файл",
                 filetypes = [
                         ("Текстовые файлы CSV", "*.csv")
@@ -206,6 +217,43 @@ class CSVManagerApp:
                 initialfile = "messages.csv",  # Файл по умолчанию
                 defaultextension = ".csv"
                 )
+
+    # Запуск процедуры добавления новой строки
+    def add_new_line (self):
+        if self.filename == "":
+            self.create_csv()
+
+        self.send_content("HELLO НЕТYJ")
+
+    # Добавление новой строки через сервер в файл и в таблицу для визуализации
+    def send_content (self, content):
+        # Добавление новой строки через сервер в файл
+        data_load = urllib.parse.urlencode(
+                {"ip": "admin", "text": content, "filename": self.filename})
+        Connection('127.0.0.1', 5000).request(
+                "POST",
+                "/hidden/",
+                data_load,
+                {'Content-type': 'application/x-www-form-urlencoded'})
+
+        fix_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        time.sleep(1)
+        with open(self.filename, 'r', encoding = 'utf-8') as file:
+            reader = csv.DictReader(file)
+            for row in list(reader):
+                print(
+                    f"GGG\n{fix_datetime} in {row["datetime"]} = {fix_datetime == row["datetime"]}")
+                if fix_datetime == row["datetime"]:
+                    self.table.insert(
+                            '', 'end', values = (
+                                    row["id"],
+                                    row["datetime"],
+                                    row["ip"],
+                                    self.wrap(decrypt(row["text"]))
+                                    ))
+                    self.data.append(row)
+        self.table.see(self.table.get_children()[-1])
+
 
 
 if __name__ == "__main__":

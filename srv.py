@@ -118,6 +118,7 @@ def read_csv (decrypt):
         for row in reader:
             if decrypt:
                 row['text'] = cypher.decrypt(row['text'])
+                print(row)
             data.append(row)
     return data
 

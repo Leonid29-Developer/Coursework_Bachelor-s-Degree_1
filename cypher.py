@@ -26,23 +26,27 @@ def encrypt (text, sid = 70220069):
     str: Зашифрованное сообщение.
     """
 
-    encrypted = []
-    # Длина массива символов
-    array_length = len(CHAR_ARRAY)
-    # Размер сдвига
-    shift = sid % 11
+    try:
+        encrypted = []
+        # Длина массива символов
+        array_length = len(CHAR_ARRAY)
+        # Размер сдвига
+        shift = sid % 11
 
-    for char in text:
-        if char in CHAR_ARRAY:
-            index = CHAR_ARRAY.index(char)
-            new_index = (index + shift) % array_length
-            encrypted.append(CHAR_ARRAY[new_index])
+        for char in text:
+            if char in CHAR_ARRAY:
+                index = CHAR_ARRAY.index(char)
+                new_index = (index + shift) % array_length
+                encrypted.append(CHAR_ARRAY[new_index])
 
-        else:
-            # Оставить символы, не входящие в массив, без изменений
-            encrypted.append(char)
+            else:
+                # Оставить символы, не входящие в массив, без изменений
+                encrypted.append(char)
 
-    return ''.join(encrypted)
+        return ''.join(encrypted)
+
+    except TypeError:
+        return "er0"
 
 
 def decrypt (text, sid = 70220069):
@@ -57,24 +61,27 @@ def decrypt (text, sid = 70220069):
     Возвращает:
     str: Зашифрованное сообщение.
     """
+    try:
+        decrypted = []
+        # Длина массива символов
+        array_length = len(CHAR_ARRAY)
+        # Размер сдвига
+        shift = sid % 11
 
-    decrypted = []
-    # Длина массива символов
-    array_length = len(CHAR_ARRAY)
-    # Размер сдвига
-    shift = sid % 11
+        for char in text:
+            if char in CHAR_ARRAY:
+                index = CHAR_ARRAY.index(char)
+                new_index = (index - shift) % array_length
+                decrypted.append(CHAR_ARRAY[new_index])
 
-    for char in text:
-        if char in CHAR_ARRAY:
-            index = CHAR_ARRAY.index(char)
-            new_index = (index - shift) % array_length
-            decrypted.append(CHAR_ARRAY[new_index])
+            else:
+                # Оставить символы, не входящие в массив, без изменений
+                decrypted.append(char)
 
-        else:
-            # Оставить символы, не входящие в массив, без изменений
-            decrypted.append(char)
+        return ''.join(decrypted)
 
-    return ''.join(decrypted)
+    except TypeError:
+        return "er0"
 
 
 def process_files ():

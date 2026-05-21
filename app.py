@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import (filedialog, scrolledtext as scroll_text)
-
-import cypher
+import cypher  # Модуль шифрования
 
 
 # Ошибка: Файл содержит недопустимые символы в строке

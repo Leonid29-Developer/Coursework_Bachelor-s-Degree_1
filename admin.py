@@ -4,7 +4,10 @@ import csv
 import textwrap
 import logging
 import os
+from venv import create
+
 import cypher  # Модуль шифрования
+from cypher import decrypt
 
 
 # Ошибка - Чтение файла не CSV
@@ -97,15 +100,18 @@ class CSVManagerApp:
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.WARNING)
         console_handler.setFormatter(
-                logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+                logging.Formatter('%(levelname)s - %(message)s'))
 
         self.logger.setLevel(logging.DEBUG)
         self.logger.addHandler(file_handler)
         self.logger.addHandler(console_handler)
 
     # Перенос слов при длине строки более 75 символов
+    # noinspection PyBroadException
     def wrap (self, string, lenght = 75):
         return '\n'.join(textwrap.wrap(string, lenght))
+
+
 
     # Загрузка файла .csv
     def load_csv (self):
@@ -128,18 +134,41 @@ class CSVManagerApp:
                 reader = csv.DictReader(file)
                 self.data = list(reader)
 
+            error_index = False
             for row in self.data:
-                self.table.insert(
-                        '', 'end', values = (
-                                row["id"],
-                                row["datetime"],
-                                row["ip"],
-                                self.wrap(cypher.decrypt(row["text"]))
-                                ))
+                text_decrypt = cypher.decrypt(row["text"])
+
+                if text_decrypt == "er0":
+                    error_index = True
+                else:
+                    self.table.insert(
+                            '', 'end', values = (
+                                    row["id"],
+                                    row["datetime"],
+                                    row["ip"],
+                                    self.wrap(text_decrypt)
+                                    ))
+
+            if error_index:
+                self.logger.warning(
+                        f"[Ошибка чтения файла] - Не удалось прочитать некоторые данные")
+                messagebox.showwarning(
+                        "Ошибка чтения файла",
+                        "Не удалось прочитать некоторые данные")
 
         except FileReadingNotCSV as error:
             self.logger.error(f"[Ошибка чтения файла] - {self.filename}")
             messagebox.showerror("Ошибка чтения файла", str(error))
+
+        except KeyError:
+            self.logger.error(
+                    f"[Ошибка чтения файла] - Структура файла не соответствует требуемым")
+            messagebox.showerror(
+                    "Ошибка чтения файла",
+                    "Структура файла не соответствует требуемым")
+
+    def create_csv (self):
+        return
 
 
 if __name__ == "__main__":

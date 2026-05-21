@@ -39,6 +39,13 @@ class CSVManagerApp:
                 command = self.load_csv)
         self.but_load.place(width = 100, height = 40, x = 20, y = 18)
 
+        # Кнопка - Создать Csv
+        self.but_load = tk.Button(
+                top_frame,
+                text = "Создать .csv",
+                command = self.create_csv)
+        self.but_load.place(width = 100, height = 40, x = 140, y = 18)
+
         # Основная область данных
         table_frame = tk.Frame(
                 self.root,
@@ -111,11 +118,16 @@ class CSVManagerApp:
     def wrap (self, string, lenght = 75):
         return '\n'.join(textwrap.wrap(string, lenght))
 
-
-
     # Загрузка файла .csv
     def load_csv (self):
         try:
+            # Подтверждение перезаписи данных
+            if len(self.data) > 0:
+                if not messagebox.askyesno(
+                        "Подтверждение",
+                        "Загрузить новый CSV-файл? Существующие данные будут перезаписаны."):
+                    return
+
             for item in self.table.get_children():
                 self.table.delete(item)
 
@@ -125,6 +137,10 @@ class CSVManagerApp:
                     initialfile = "messages.csv",  # Файл по умолчанию
                     filetypes = [("Текстовые файлы CSV", "*.csv")])
 
+            # Выйти если пусть пуст
+            if self.filename == "": return
+
+            # Проверка формата файла
             if os.path.splitext(self.filename)[1] == ".csv":
                 self.logger.info(f"[Прочитан файл csv] - {self.filename}")
             else:
@@ -138,6 +154,7 @@ class CSVManagerApp:
             for row in self.data:
                 text_decrypt = cypher.decrypt(row["text"])
 
+                # Проверка строк на корректность
                 if text_decrypt == "er0":
                     error_index = True
                 else:
@@ -167,8 +184,28 @@ class CSVManagerApp:
                     "Ошибка чтения файла",
                     "Структура файла не соответствует требуемым")
 
+    # Создание и выбор места для сохранения файла
     def create_csv (self):
-        return
+        # Подтверждение перезаписи данных
+        if len(self.data) > 0:
+            if not messagebox.askyesno(
+                    "Подтверждение",
+                    "Создать новый CSV-файл? Существующие данные будут перезаписаны."):
+                return
+
+        for item in self.table.get_children():
+            self.table.delete(item)
+        self.data = []
+
+        # Вызов диалогового окна сохранения
+        file_path = filedialog.asksaveasfilename(
+                title = "Сохранить файл",
+                filetypes = [
+                        ("Текстовые файлы CSV", "*.csv")
+                        ],
+                initialfile = "messages.csv",  # Файл по умолчанию
+                defaultextension = ".csv"
+                )
 
 
 if __name__ == "__main__":

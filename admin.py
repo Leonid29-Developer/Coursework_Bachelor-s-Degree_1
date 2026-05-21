@@ -1,6 +1,7 @@
 import json
 import tkinter as tk
 from fileinput import filename
+from shutil import which
 from tkinter import ttk, filedialog, messagebox
 import csv
 from http.client import HTTPConnection as Connection
@@ -9,6 +10,7 @@ import textwrap
 import logging
 import os
 from datetime import datetime
+from tkinter import font
 import time
 
 from cypher import encrypt, decrypt  # Модуль шифрования
@@ -40,21 +42,21 @@ class CSVManagerApp:
         self.but_load = tk.Button(
                 top_frame,
                 text = "Загрузить .csv",
-                command = self.load_csv)
+                command = self.load_csv, background = "#B4D1D5")
         self.but_load.place(width = 100, height = 40, x = 30, y = 18)
 
         # Кнопка - Создать Csv
         self.but_load = tk.Button(
                 top_frame,
                 text = "Создать .csv",
-                command = self.create_csv)
+                command = self.create_csv, background = "#B4D1D5")
         self.but_load.place(width = 100, height = 40, x = 160, y = 18)
 
         # Кнопка - Добавить новую строку
         self.but_load = tk.Button(
                 top_frame,
                 text = "Добавить новую строку",
-                command = self.add_new_line)
+                command = self.add_new_line, background = "#B4D1D5")
         self.but_load.place(width = 150, height = 40, x = 290, y = 18)
 
         # Основная область данных
@@ -223,13 +225,56 @@ class CSVManagerApp:
         if self.filename == "":
             self.create_csv()
 
-        self.send_content("HELLO НЕТYJ")
+        # Создание окна-ввода
+        input_win = tk.Toplevel(self.root)
+        input_win.geometry(
+                f"400x250+{root.winfo_x() + 260}+{root.winfo_y() + 180}")
+
+        win_frame = tk.Frame(input_win)
+        win_frame.place(relwidth = 1, relheight = 1)
+
+        label_title = tk.Label(
+                win_frame,
+                text = "Введите текст для новой строки",
+                font = ("Segoe UI", 11))
+        label_title.place(
+                relwidth = 0.8,
+                relheight = 0.1,
+                relx = 0.1,
+                rely = 0.05)
+
+        self.input_textbox = tk.Text(
+            win_frame,
+            borderwidth = 0.5,
+            relief = 'solid')
+        self.input_textbox.place(
+            relwidth = 0.8,
+            relheight = 0.6,
+            relx = 0.1,
+            rely = 0.2)
+
+        button_send = tk.Button(
+                win_frame,
+                text = "Отправить",
+                borderwidth = 0.5,
+                relief = 'solid',
+                font = ("Segoe UI", 11),
+                background = "#B4D1D5",
+                command = self.send_content)
+        button_send.place(
+                relwidth = 0.4,
+                relheight = 0.1,
+                relx = 0.3,
+                rely = 0.85)
 
     # Добавление новой строки через сервер в файл и в таблицу для визуализации
-    def send_content (self, content):
+    def send_content (self):
         # Добавление новой строки через сервер в файл
         data_load = urllib.parse.urlencode(
-                {"ip": "admin", "text": content, "filename": self.filename})
+                {
+                        "ip": "admin",
+                        "text": self.input_textbox.get("1.0", "end-1c"),
+                        "filename": self.filename})
         Connection('127.0.0.1', 5000).request(
                 "POST",
                 "/hidden/",
@@ -241,8 +286,6 @@ class CSVManagerApp:
         with open(self.filename, 'r', encoding = 'utf-8') as file:
             reader = csv.DictReader(file)
             for row in list(reader):
-                print(
-                    f"GGG\n{fix_datetime} in {row["datetime"]} = {fix_datetime == row["datetime"]}")
                 if fix_datetime == row["datetime"]:
                     self.table.insert(
                             '', 'end', values = (
@@ -253,7 +296,6 @@ class CSVManagerApp:
                                     ))
                     self.data.append(row)
         self.table.see(self.table.get_children()[-1])
-
 
 
 if __name__ == "__main__":

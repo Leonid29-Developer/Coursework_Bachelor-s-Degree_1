@@ -1,20 +1,17 @@
-import json
 import tkinter as tk
-from fileinput import filename
-from pprint import PrettyPrinter
-from shutil import which
 from tkinter import ttk, filedialog, messagebox
 import csv
-from http.client import HTTPConnection as Connection
-import urllib.parse
-import textwrap
 import logging
 import os
-from datetime import datetime
-from tkinter import font
+import textwrap
 import time
+import tkinter as tk
+import urllib.parse
+from datetime import datetime
+from http.client import HTTPConnection as Connection
+from tkinter import ttk, filedialog, messagebox
 
-from cypher import encrypt, decrypt  # Модуль шифрования
+from cypher import decrypt  # Модуль шифрования
 
 
 # Ошибка - Чтение файла не CSV
@@ -190,10 +187,18 @@ class CSVManagerApp:
             but_up.pack(side = "left")
             but_down.pack(side = "left")
             but_del.pack(side = "left")
-
             self.button_frame_active['bool'] = True
             self.button_frame_active['row_id'] = row_id
             self.button_frame.place(x = 0, y = y, height = height)
+
+            # Активация / Деактивация кнопок, в зависимости от расположения
+            index = self.table.index(row_id)
+            count = len(self.table.get_children())
+
+            if index == 0:
+                but_up.configure(state = "disabled", background = "#A0A0A0")
+            if index == count - 1:
+                but_down.configure(state = "disabled", background = "#A0A0A0")
 
     # Событие - выход мыши из области таблицы
     def no_mouse_detect (self, event = None):
@@ -203,6 +208,7 @@ class CSVManagerApp:
                 self.button_frame.destroy()
                 self.button_frame_active = {'bool': False, 'row_id': 0}
 
+    # Изменение порядка строк и сохранение новых данных в файл csv
     def edit_and_save_csv (self, deviation):
         row_id = self.button_frame_active['row_id']
         index = self.table.index(row_id)
@@ -214,13 +220,13 @@ class CSVManagerApp:
             self.table.insert(
                     '', index + deviation, iid = row_id, values = (
                             "",
-                            values[1],
-                            values[2],
-                            values[3],
-                            values[4],
+                            values[1],  # id
+                            values[2],  # datetime
+                            values[3],  # ip
+                            values[4],  # text
                             ))
 
-        # Обновление в файле данных
+        # Обновление в словаре данных
         data_id = [item['id'] for item in self.data]
         index = data_id.index(str(values[1]))
         value = self.data[index]

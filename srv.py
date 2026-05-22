@@ -35,7 +35,7 @@ logger.addHandler(console_handler)
 
 # Создает файл CSV с нужными заголовками (первой строкой)
 def create_csv (filename):
-    if not os.path.isfile(filename):
+    if not os.path.isfile(filename) or os.path.getsize(filename) == 0:
         with open(
                 filename,
                 'a',
@@ -113,7 +113,7 @@ def hidden_home ():
             request.form['ip'],
             request.form['text'],
             request.form['filename'])
-    return
+    return '', 200
 
 
 @app.route('/reset/', methods = ['GET', 'POST'])

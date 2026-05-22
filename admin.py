@@ -34,6 +34,11 @@ class CSVManagerApp:
         self.root.title("CSV Manager - управление контентом")
         self.root.geometry("800x600")
 
+        # Главная форма
+        self._main_form()
+
+    # Инициализация главной формы
+    def _main_form (self):
         # Верхняя панель
         top_frame = tk.Frame(self.root)
         top_frame.place(relwidth = 1, relheight = 0.125)
@@ -56,7 +61,7 @@ class CSVManagerApp:
         self.but_load = tk.Button(
                 top_frame,
                 text = "Добавить новую строку",
-                command = self.add_new_line, background = "#B4D1D5")
+                command = self._add_new_line, background = "#B4D1D5")
         self.but_load.place(width = 150, height = 40, x = 290, y = 18)
 
         # Основная область данных
@@ -221,16 +226,17 @@ class CSVManagerApp:
                 )
 
     # Запуск процедуры добавления новой строки
-    def add_new_line (self):
+    def _add_new_line (self):
         if self.filename == "":
-            self.create_csv()
+            self.create_csv()  # Выбор места сохранения при не выбранном файле
+            if self.filename == "": return  # Выход, если файл так и не выбран
 
         # Создание окна-ввода
-        input_win = tk.Toplevel(self.root)
-        input_win.geometry(
+        self.input_win = tk.Toplevel(self.root)
+        self.input_win.geometry(
                 f"400x250+{root.winfo_x() + 260}+{root.winfo_y() + 180}")
 
-        win_frame = tk.Frame(input_win)
+        win_frame = tk.Frame(self.input_win)
         win_frame.place(relwidth = 1, relheight = 1)
 
         label_title = tk.Label(
@@ -244,14 +250,15 @@ class CSVManagerApp:
                 rely = 0.05)
 
         self.input_textbox = tk.Text(
-            win_frame,
-            borderwidth = 0.5,
-            relief = 'solid')
+                win_frame,
+                borderwidth = 0.5,
+                relief = 'solid')
+        self.input_textbox.bind('<Return>', self.entry_send_content)
         self.input_textbox.place(
-            relwidth = 0.8,
-            relheight = 0.6,
-            relx = 0.1,
-            rely = 0.2)
+                relwidth = 0.8,
+                relheight = 0.6,
+                relx = 0.1,
+                rely = 0.2)
 
         button_send = tk.Button(
                 win_frame,
@@ -266,6 +273,11 @@ class CSVManagerApp:
                 relheight = 0.1,
                 relx = 0.3,
                 rely = 0.85)
+
+    # Событие - нажатие <Enter> в textbox в форме input
+    def entry_send_content (self, event):
+        _ = event
+        self.send_content()
 
     # Добавление новой строки через сервер в файл и в таблицу для визуализации
     def send_content (self):
@@ -282,7 +294,8 @@ class CSVManagerApp:
                 {'Content-type': 'application/x-www-form-urlencoded'})
 
         fix_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        time.sleep(1)
+        time.sleep(
+                0.0006)  # Остановка работы приложения на время работы сервера
         with open(self.filename, 'r', encoding = 'utf-8') as file:
             reader = csv.DictReader(file)
             for row in list(reader):
@@ -296,6 +309,8 @@ class CSVManagerApp:
                                     ))
                     self.data.append(row)
         self.table.see(self.table.get_children()[-1])
+
+        self.input_win.destroy()
 
 
 if __name__ == "__main__":

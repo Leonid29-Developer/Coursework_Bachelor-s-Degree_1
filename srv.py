@@ -4,7 +4,7 @@ import logging
 import os
 from datetime import datetime
 from flask import Flask, render_template as run, request, Response
-import cypher  # Модуль шифрования
+from cypher import encrypt, decrypt  # Модуль шифрования
 
 # Настройка логирования
 
@@ -87,7 +87,7 @@ def save_csv (ip, message, filename):
         writer.writerow(
                 [datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                  get_index(filename), ip,
-                 cypher.encrypt(message)])
+                 encrypt(message)])
 
 
 # noinspection PyBroadException
@@ -124,13 +124,13 @@ def reset ():
 
 
 # Чтение данных файла CSV для JSON
-def read_csv (decrypt):
+def read_csv (decrypt_text):
     data = []
     with open('Data/messages.csv', 'r', encoding = 'utf-8') as file:
         reader = csv.DictReader(file)
         for row in reader:
-            if decrypt:
-                row['text'] = cypher.decrypt(row['text'])
+            if decrypt_text:
+                row['text'] = decrypt(row['text'])
             data.append(row)
     return data
 
@@ -166,5 +166,5 @@ def get_all_decrypted ():
 
 
 if __name__ == '__main__':
-    app.run(host = '0.0.0.0', port = 5000, debug = True)
-    app.run(host = '127.0.0.1', port = 5000, debug = True)
+    app.run(host = '0.0.0.0', port = 5000, debug = False)
+    app.run(host = '127.0.0.1', port = 5000, debug = False)
